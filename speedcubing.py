@@ -1,84 +1,121 @@
-import time as timer
+import time
 
-def calc_average(times):
-    return sum(times) / len(times)
+def time_solve(times):
+    start = time.time()
+    input("hit [enter] to stop the timer")
+    end = time.time()
+    times.append(end - start)
 
-def calc_ao5(times):
-    times =  times[-5:]
-    times.remove(min(times))
-    times.remove(max(times))
-    return calc_average(times)
+    print("time: {}".format(times[-1]))
+    stats(times)
+    return times
 
-def calc_best(times):
-    return min(times)
+def stats(times):
+    best = min(times)
+    worst = max(times)
+    average = sum(times) / len(times)
+    solves = len(times)
+    print("best: {}".format(best),
+          "worst: {}".format(worst),
+          "average: {}".format(average),
+          "solves: {}".format(solves),
+          sep="\n")
 
-def calc_stats(times):
-    if len(times) < 5:
-        return None, None, None
-    best = calc_best(times)
-    average = calc_average(times)
-    ao5 = calc_ao5(times)
-    return best, average, ao5
+    if len(times) >= 5:
+        last = times[-5:]
+        middle = sorted(last)[1:5]
+        print("aol5: {}".format(sum(middle) / 3))
 
-def read(file_name):
-    with open(file_name, "r") as data:
-        return [float(time) for time in data.read().split()]
+    for aol in [10, 50, 100, 500, 1000]:
+        if len(times) >= aol:
+            last = times[-aol:]
+            print("aol{}: {}".format(aol, sum(last) / aol))
+        else:
+            break
 
-def save(file_name, times):
-    with open(file_name, "w") as data:
+    return times
+
+def top(times):
+    print(*[str(time) for time in sorted(times)[:5]], sep="\n")
+    return times
+
+def all_times(times):
+    print(*[str(time) for time in times], sep="\n")
+    return times
+
+def manual(times):
+    time = input("manually add a time >>>")
+    try:
+        times.append(time)
+    except:
+        print("that isn't a valid time (try again by typing 'manual')")
+
+def delete(times):
+    print("deleted last time")
+    return times[:-1]
+
+def add_2(times):
+    times[-1] += 2
+
+    print("time is now {}".format(times[-1]))
+    return times
+
+def sub_2(times):
+    times[-1] -= 2
+
+    print("time is now {}".format(times[-1]))
+    return times
+
+def save(times):
+    global save_file
+    with open(save_file, "w") as data:
         data.write("\n".join([str(time) for time in times]))
 
-file_name = "speedcube.txt"
-times = read(file_name)
+    return times
 
-instructions = """
-hit [enter] to start/stop the timer
-type 'del' then hit [enter] to delete your last time
-type 'times' then hit [enter] to view your times
-type '+2' then hit [enter] to add 2 seconds to your last time
-type '-2' then hit [enter] to subtract two seconds from your last time
-type 'manual' then hit [enter] to manually add a time
-type 'top' then hit [enter] to view your 5 best times
-type 'q' then hit [enter] to quit"""
+def load(times):
+    global save_file
+    with open(save_file, "r") as data:
+        return [float(time) for time in data.read().split()]
 
-print(instructions)
+def list_help(times):
+    global actions
+    print(*[actions[action][1] for action in actions], sep="\n")
 
-actions = ["", "del", "times", "+2", "-2", "manual", "top" ,"q"]
+    return times
+
+# function, command, description
+actions = {
+    "":       (time_solve, "hit [enter] to start/stop the timer"),
+    "help":   (list_help,  "type 'help' to see this block of text again"),
+    "stats":  (stats,      "type 'stats' to view your stats"),
+    "top":    (top,        "type 'top' to view your top 5 times"),
+    "times":  (all_times,  "type 'times' to list every signle time on record"),
+    "manual": (manual,     "type 'manual' to manually add a time"),
+    "+2":     (add_2,      "type '+2' to add 2 to your last time"),
+    "-2":     (sub_2,      "type '-2' to subtract 2 from your last time"),
+    "del":    (delete,     "type 'del' to delete your last time"),
+    "save":   (save,       "type 'save' to save your times"),
+    "load":   (load,       "type 'load' to reload your saved times (this is done automatically)"),
+    "q":      (None,       "type 'q' to quit"),
+}
+
+save_file = "speedcube.txt"
+times = load(save_file)
+
+list_help(times)
 
 while True:
-    best, average, ao5 = calc_stats(times)
-    print("best: {} \naverage: {} \nao5: {}\n".format(best, average, ao5))
+    print()
 
     while True:
-        action = input(">>> ")
-        if action in actions:
+        command = input(">>> ")
+        if command in actions:
             break
-        print("invalid action, please try again")
+        print("not a valid command, please try again (or type 'help')\n")
 
-    if action == "":
-        start = timer.time()
-        input("hit [enter] to stop >>> ")
-        end = timer.time()
-        time = end - start
-        print("time: {}".format(time))
-        times.append(time)
-    if action == "del":
-        times = times[:-1]
-    if action == "times":
-        print("\n".join([str(time) for time in times]))
-    if action == "+2":
-        times[-1] += 2
-    if action == "-2":
-        times[-1] -= 2
-    if action == "manual":
-        try:
-            time = float(input("enter time manually >>> "))
-            times.append(time)
-        except:
-            print("invalid time, type 'manual' then hit [enter] to try again")
-    if action == "top":
-        print(*[str(time) for time in sorted(times)[0:5]], sep="\n")
-    if action == "q":
+    if command == "q":
         break
 
-    save(file_name, times)
+    times = actions[command][0](times)
+    save(times)
