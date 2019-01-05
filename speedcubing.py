@@ -23,7 +23,7 @@ def stats(times):
 
     if len(times) >= 5:
         last = times[-5:]
-        middle = sorted(last)[1:5]
+        middle = sorted(last)[1:4]
         print("aol5: {}".format(sum(middle) / 3))
 
     for aol in [10, 50, 100, 500, 1000]:
