@@ -31,14 +31,24 @@ def save(file_name, times):
 file_name = "speedcube.txt"
 times = read(file_name)
 
-print("hit [enter] to start/stop the timer \ntype 'del' then hit [enter] to delete your last time \ntype 'times' then hit [enter] to view your times\ntype '+2' then hit [enter] to add 2 seconds to your last time \ntype '-2' then hit [enter] to subtract two seconds from your last time \ntype 'manual' then hit [enter] to manually add a time \ntype 'q' then hit [enter] to quit")
+instructions = """
+hit [enter] to start/stop the timer
+type 'del' then hit [enter] to delete your last time
+type 'times' then hit [enter] to view your times
+type '+2' then hit [enter] to add 2 seconds to your last time
+type '-2' then hit [enter] to subtract two seconds from your last time
+type 'manual' then hit [enter] to manually add a time
+type 'top' then hit [enter] to view your 5 best times
+type 'q' then hit [enter] to quit"""
 
-actions = ["", "del", "times", "+2", "-2", "manual", "q"]
+print(instructions)
+
+actions = ["", "del", "times", "+2", "-2", "manual", "top" ,"q"]
 
 while True:
     best, average, ao5 = calc_stats(times)
     print("best: {} \naverage: {} \nao5: {}\n".format(best, average, ao5))
-    
+
     while True:
         action = input(">>> ")
         if action in actions:
@@ -47,7 +57,7 @@ while True:
 
     if action == "":
         start = timer.time()
-        input("hit [enter] to stop")
+        input("hit [enter] to stop >>> ")
         end = timer.time()
         time = end - start
         print("time: {}".format(time))
@@ -66,6 +76,8 @@ while True:
             times.append(time)
         except:
             print("invalid time, type 'manual' then hit [enter] to try again")
+    if action == "top":
+        print(*[str(time) for time in sorted(times)[0:5]], sep="\n")
     if action == "q":
         break
 
