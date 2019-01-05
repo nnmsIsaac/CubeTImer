@@ -44,11 +44,13 @@ def all_times(times):
     return times
 
 def manual(times):
-    time = input("manually add a time >>>")
+    time = input("manually add a time >>> ")
     try:
         times.append(time)
     except:
         print("that isn't a valid time (try again by typing 'manual')")
+    
+    return times
 
 def delete(times):
     print("deleted last time")
